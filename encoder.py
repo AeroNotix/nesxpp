@@ -1,5 +1,6 @@
 # Implementation of https://wiki.nesdev.com/w/index.php/PPU_pattern_tables
 
+import png
 import operator
 import os
 
@@ -36,7 +37,8 @@ NES_BITMAP_DIMENSION = 8
 CHR_BANK_SIZE = 4096
 SPRITES_IN_CHR_BANK = 256
 SINGLE_SPRITE_SIZE = 16
-
+PNG_SPRITE_WIDTH = 32
+PNG_SPRITE_HEIGHT = 8
 
 class IncorrectBitmapSize(Exception):
     pass
@@ -47,7 +49,7 @@ class IncorrectCHRBankSize(Exception):
 
 
 def encode(bitmap):
-    if len(bitmap) != NES_BITMAP_DIMENSION and all(lambda row: len(row) == NES_BITMAP_DIMENSION, bitmap):
+    if len(bitmap) != SPRITES_IN_CHR_BANK and all(map(lambda row: len(row) == NES_BITMAP_DIMENSION, bitmap)):
         raise IncorrectBitmapSize()
 
     out = []
@@ -65,6 +67,23 @@ def encode(bitmap):
                 bitplane1[idx] = 1
         out.append((bitplane0, bitplane1))
     return out
+
+
+def encode_to_png(bitmap):
+    sprite_rows = [bitmap[x:x+16] for x in xrange(0, len(bitmap), 16)]
+    pixels = []
+    for sprite_row in sprite_rows:
+        for x in range(8):
+            row = []
+            for sprite in sprite_row:
+                row.extend(sprite[x])
+            pixels.append(row)
+
+    # todo: allow override
+    f = open('png.png', 'wb')
+    w = png.Writer(len(pixels[0]), len(pixels), greyscale=True, bitdepth=2)
+    w.write(f, pixels)
+    f.close()
 
 
 def decode(filepath):
