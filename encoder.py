@@ -32,6 +32,13 @@ import os
 # numbers are colours in the current palette. Both bitplanes are
 # combined to create the encoded form. We need to separate them back
 # out to create the raw CHR file.
+#
+# The format for both bit planes:
+# Encoded   BP0   BP1
+# 0         0     0
+# 1         1     0
+# 2         0     1
+# 3         1     1
 
 NES_BITMAP_DIMENSION = 8
 CHR_BANK_SIZE = 4096
